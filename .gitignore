@@ -1,1 +1,5 @@
 .idea
+client/client.iml
+gradlew
+gradlew.bat
+gradle
