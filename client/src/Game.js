@@ -8,9 +8,9 @@ class Game
     static gameBoard;
     static directionalLight;
     static ambientLight;
+    static zoomFactor;
     static players = {};
     static nonPlayerEntities = [];
-    static zoomFactor;
     static gameStartTime = 0;
     static gameTimeOffset = 0;
     static gameStopTime = 0;
@@ -19,6 +19,14 @@ class Game
 
     static init( width, height )
     {
+        Game.players = {};
+        Game.nonPlayerEntities = [];
+        Game.gameStartTime = 0;
+        Game.gameTimeOffset = 0;
+        Game.gameStopTime = 0;
+        Game.running = false;
+        Game.realTimeSyncOffset = 0;
+
         Game.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
         Game.zoomFactor = width / 8;
         Game.camera.position.z = 5 * Game.zoomFactor;
@@ -46,6 +54,12 @@ class Game
     {
         Game.players[ player.uid ] = player;
         Game.scene.add( player );
+    }
+
+    static removePlayer( playerUid )
+    {
+        Game.scene.remove( Game.players[ playerUid ] );
+        delete Game.players[ playerUid ];
     }
 
     static addEntity( entity )

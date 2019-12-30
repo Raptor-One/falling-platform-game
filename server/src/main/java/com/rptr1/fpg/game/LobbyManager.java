@@ -50,4 +50,9 @@ public class LobbyManager
     {
         return lobbyMap.get( playerToLobbyMap.get( uid ) );
     }
+
+    public static void removePlayerFromLobby( String uid )
+    {
+        getLobbyFromPlayer( uid ).removePlayer( uid );
+    }
 }

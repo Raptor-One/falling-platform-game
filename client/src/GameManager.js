@@ -8,6 +8,7 @@ class GameManager
         timeSyncResponse: this.setTimeHandler,
         boardStateChangeResponse: this.boardStateChangeHandler,
         createPlayerResponse: this.createPlayerHandler,
+        removePlayerResponse: this.removePlayerHandler,
         createGameResponse: this.createGameHandler,
         setUidResponse: this.setUidMsgHandler,
         updatePlayerMovementMsg: this.playerPosChangeHandler,
@@ -133,6 +134,16 @@ class GameManager
             if( nthis.controller !== undefined )
                 delete nthis.controller;
             nthis.controller = new PlayerController( player, nthis, defaultControls );
+        }
+    }
+
+    removePlayerHandler( msg, nthis = this )
+    {
+        Game.removePlayer( msg.uid );
+        if( nthis.uid !== undefined && nthis.uid === msg.uid )
+        {
+            if( nthis.controller !== undefined )
+                delete nthis.controller;
         }
     }
 

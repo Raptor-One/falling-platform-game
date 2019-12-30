@@ -4,7 +4,6 @@ import com.rptr1.fpg.msgs.GameEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 
 public class Lobby
@@ -20,7 +19,7 @@ public class Lobby
 
     void createNewGame( BlockingQueue<GameEvent> gameEventQueue )
     {
-        game = new Game( id, playerUids, gameEventQueue );
+        game = new Game( id, playerUids, this::gameEnded, gameEventQueue );
     }
 
     void addPlayer( String playerUid )
@@ -28,8 +27,17 @@ public class Lobby
         playerUids.add( playerUid );
     }
 
+    void gameEnded()
+    {
+        game = null;
+    }
+
     void removePlayer( String playerUid )
     {
+        if(game != null)
+        {
+            game.removeDisconnectedPlayer( playerUid );
+        }
         playerUids.remove( playerUid );
     }
 

@@ -22,15 +22,17 @@ public class Game
     private long offsetTime = 0;
     private boolean running = false;
     private Map<String, Player> playerMap = new HashMap<>();
+    private Runnable onGameOver;
     private BlockingQueue<GameEvent> gameEventQueue;
 
-    public Game( String lobbyId, List<String> playerUids, BlockingQueue<GameEvent> gameEventQueue )
+    public Game( String lobbyId, List<String> playerUids, Runnable onGameOver, BlockingQueue<GameEvent> gameEventQueue )
     {
         this.lobbyId = lobbyId;
         int dimensions = calculateDimensions( playerUids.size() );
         this.width = dimensions;
         this.height = dimensions;
         this.gameboard = new Tile[ width ][ height ];
+        this.onGameOver = onGameOver;
         this.gameEventQueue = gameEventQueue;
         GameEvent addPlayersGameEvent = new GameEvent();
         double spawnAngle = 0;
@@ -75,6 +77,19 @@ public class Game
         messages.add( new BoardStateChangeResponse( pos, this.gameboard[ pos.getX() ][ pos.getY() ] ) );
         //todo check for platforms that should fall
         gameEventQueue.add( new GameEvent( new ArrayList<>( playerMap.keySet() ), messages ) );
+    }
+
+    public void removeDisconnectedPlayer( String uid )
+    {
+        List<String> remainingPlayers = new ArrayList<>( playerMap.keySet() );
+        remainingPlayers.remove( uid );
+        gameEventQueue.add( new GameEvent( remainingPlayers , new RemovePlayerResponse( uid ) ) );
+        playerMap.remove( uid );
+        if(playerMap.size() == 0)
+        {
+            // todo end / restart game logic
+            onGameOver.run();
+        }
     }
 
     public Vector2i convertGameToTilePosition( Vector2f coords )

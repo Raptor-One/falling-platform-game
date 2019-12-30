@@ -63,6 +63,7 @@ public class GameServerWebSocket extends WebSocketServer
     public void onClose( WebSocket conn, int code, String reason, boolean remote )
     {
         System.out.println( "closed " + conn.getRemoteSocketAddress() + " with exit code " + code + " additional info: " + reason );
+        LobbyManager.removePlayerFromLobby( socketAddressToUidMap.get( conn.getRemoteSocketAddress() ) );
     }
 
     @Override
