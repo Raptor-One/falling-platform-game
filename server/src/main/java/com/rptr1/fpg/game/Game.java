@@ -61,22 +61,14 @@ public class Game
         gameEventQueue.add( addPlayersGameEvent );
     }
 
-    /**
-     * @return list of positions of tile states that have been changed. Value A in box is sender update list, value B is other player update list
-     */
-    public void updateBoard( Vector2i pos, Tile tile, String playerUid )
+    public void updateBoard( Vector2i pos, Tile tile )
     {
         if( !tile.getState().canOverride( this.gameboard[ pos.getX() ][ pos.getY() ].getState().toInt() ) )
         {
-            BoardStateChangeResponse stateChangeResponse = new BoardStateChangeResponse( pos, this.gameboard[ pos.getX() ][ pos.getY() ] );
-            gameEventQueue.add( new GameEvent( playerUid, stateChangeResponse ) );
             return;
         }
-        List<Message> messages = new ArrayList<>();
         this.gameboard[ pos.getX() ][ pos.getY() ] = tile;
-        messages.add( new BoardStateChangeResponse( pos, this.gameboard[ pos.getX() ][ pos.getY() ] ) );
         //todo check for platforms that should fall
-        gameEventQueue.add( new GameEvent( new ArrayList<>( playerMap.keySet() ), messages ) );
     }
 
     public void removeDisconnectedPlayer( String uid )

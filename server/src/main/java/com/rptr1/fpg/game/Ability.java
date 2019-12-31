@@ -22,7 +22,7 @@ public enum Ability
             },
             ( params, game, player ) -> {
                 Vector2i tileCoords = game.convertGameToTilePosition( params.getTarget() );
-                game.updateBoard( tileCoords, new Tile( Tile.State.DISINTEGRATING, params.usedTime), player.getUid() );
+                game.updateBoard( tileCoords, new Tile( Tile.State.DISINTEGRATING, params.usedTime) );
             }),
     THROW_GRENADE("throwGrenadeAbility", 500,
             ( params, game, player ) -> {
@@ -36,8 +36,7 @@ public enum Ability
                 Vector2f delta = params.getTarget().subtract( params.getOrigin() );
                 double distance = Math.sqrt( Math.pow( delta.getX(), 2 ) + Math.pow( delta.getY(), 2 ) );
                 long timeTillResult = (long)( distance / (0.01) + 100);
-//                game.updateBoard( tileCoords, new Tile( Tile.State.DISINTEGRATING, params.usedTime + timeTillResult), player.getUid() );
-                //todo do this properly
+                game.updateBoard( tileCoords, new Tile( Tile.State.DISINTEGRATING, params.usedTime + timeTillResult) );
             }),
 
     ;
