@@ -14,16 +14,14 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameServerWebSocket extends WebSocketServer
 {
-    public static final Map<InetSocketAddress, String> socketAddressToUidMap = new HashMap<>(); //connection to player id
+    public static final Map<InetSocketAddress, String> socketAddressToUidMap = new ConcurrentHashMap<>(); //connection to player id
     public static final Map<String, WebSocket> uidToSocketAddressMap = new ConcurrentHashMap<>(); //player id to ws connection
-    public static final Map<String, String> activePlayers = new HashMap<>(); // player id to game id
-    public static final Map<String, Game> activeGames = new HashMap<>(); // game id to game
+    public static final Map<String, String> activePlayers = new ConcurrentHashMap<>(); // player id to game id
+    public static final Map<String, Game> activeGames = new ConcurrentHashMap<>(); // game id to game
     private final Gson gson = CustomGson.getGson();
 
     private final Map<String, MessageHandler<?>> messageHandlerMap = new HashMap<String, MessageHandler<?>>()

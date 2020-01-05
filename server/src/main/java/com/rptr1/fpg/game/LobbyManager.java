@@ -1,11 +1,8 @@
 package com.rptr1.fpg.game;
 
-import com.rptr1.fpg.msgs.GameEvent;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
 
 public class LobbyManager
 {

@@ -1,6 +1,9 @@
 package com.rptr1.fpg.game;
 
-import com.rptr1.fpg.msgs.*;
+import com.rptr1.fpg.msgs.CreateGameResponse;
+import com.rptr1.fpg.msgs.CreatePlayerResponse;
+import com.rptr1.fpg.msgs.GameEvent;
+import com.rptr1.fpg.msgs.RemovePlayerResponse;
 import com.rptr1.fpg.server.main.GameEventDispatcher;
 import com.rptr1.fpg.util.Vector2f;
 import com.rptr1.fpg.util.Vector2i;
@@ -9,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.BlockingQueue;
 
 public class Game
 {

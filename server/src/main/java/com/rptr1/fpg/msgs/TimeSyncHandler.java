@@ -2,8 +2,6 @@ package com.rptr1.fpg.msgs;
 
 import com.rptr1.fpg.server.main.GameEventDispatcher;
 
-import java.util.concurrent.BlockingQueue;
-
 public class TimeSyncHandler extends MessageHandler<TimeSyncRequest>
 {
 

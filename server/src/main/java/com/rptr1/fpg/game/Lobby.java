@@ -1,10 +1,7 @@
 package com.rptr1.fpg.game;
 
-import com.rptr1.fpg.msgs.GameEvent;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 public class Lobby
 {

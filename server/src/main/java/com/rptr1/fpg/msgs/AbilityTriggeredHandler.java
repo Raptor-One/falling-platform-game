@@ -4,9 +4,7 @@ import com.rptr1.fpg.error.ClientVisibleException;
 import com.rptr1.fpg.game.*;
 import com.rptr1.fpg.server.main.GameEventDispatcher;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 
 public class AbilityTriggeredHandler extends MessageHandler<AbilityTriggeredMsg>
 {
