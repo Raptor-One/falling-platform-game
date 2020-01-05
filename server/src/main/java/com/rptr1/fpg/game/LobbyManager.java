@@ -36,9 +36,9 @@ public class LobbyManager
         return lobbyId;
     }
 
-    public static void createNewGame( String lobbyId, BlockingQueue<GameEvent> gameEventQueue)
+    public static void createNewGame( String lobbyId)
     {
-        lobbyMap.get( lobbyId ).createNewGame( gameEventQueue );
+        lobbyMap.get( lobbyId ).createNewGame( );
     }
 
     public static Lobby getLobby( String id )

@@ -20,25 +20,23 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class GameServerWebSocket extends WebSocketServer
 {
-    private final Map<InetSocketAddress, String> socketAddressToUidMap = new HashMap<>(); //connection to player id
-    private final Map<String, WebSocket> uidToSocketAddressMap = new ConcurrentHashMap<>(); //player id to ws connection
-    private final Map<String, String> activePlayers = new HashMap<>(); // player id to game id
-    private final Map<String, Game> activeGames = new HashMap<>(); // game id to game
-    private final BlockingQueue<GameEvent> gameEventQueue = new LinkedBlockingQueue<>();
+    public static final Map<InetSocketAddress, String> socketAddressToUidMap = new HashMap<>(); //connection to player id
+    public static final Map<String, WebSocket> uidToSocketAddressMap = new ConcurrentHashMap<>(); //player id to ws connection
+    public static final Map<String, String> activePlayers = new HashMap<>(); // player id to game id
+    public static final Map<String, Game> activeGames = new HashMap<>(); // game id to game
     private final Gson gson = CustomGson.getGson();
 
     private final Map<String, MessageHandler<?>> messageHandlerMap = new HashMap<String, MessageHandler<?>>()
     {{
         put( "timeSyncRequest", new TimeSyncHandler() );
         put( "abilityTriggeredMsg", new AbilityTriggeredHandler() );
+        put( "effectTriggeredMsg", new EffectTriggeredHandler() );
         put( "updatePlayerMovementMsg", new UpdatePlayerMovementHandler() );
     }};
 
     public GameServerWebSocket( InetSocketAddress address )
     {
         super( address );
-        GameEventDispatcher gameEventDispatcher = new GameEventDispatcher( 3, gameEventQueue, uidToSocketAddressMap );
-        gameEventDispatcher.start();
     }
 
     @Override
@@ -50,12 +48,12 @@ public class GameServerWebSocket extends WebSocketServer
         String playerUid = UUID.randomUUID().toString();
         socketAddressToUidMap.put( conn.getRemoteSocketAddress(), playerUid );
         uidToSocketAddressMap.put( playerUid, conn );
-        gameEventQueue.add( new GameEvent( playerUid, new SetUidResponse( playerUid ) ) );
+        GameEventDispatcher.dispatch( new GameEvent( playerUid, new SetUidResponse( playerUid ) ) );
 
         String lobbyId = LobbyManager.addPlayer( playerUid );
-        if(LobbyManager.getLobby( lobbyId ).getGame() == null && LobbyManager.getLobby( lobbyId ).getNumberOfPlayers() > 1 )
+        if(LobbyManager.getLobby( lobbyId ).getGame() == null && LobbyManager.getLobby( lobbyId ).getNumberOfPlayers() >= 1 )
         {
-            LobbyManager.createNewGame( lobbyId, gameEventQueue );
+            LobbyManager.createNewGame( lobbyId );
         }
     }
 
@@ -78,7 +76,7 @@ public class GameServerWebSocket extends WebSocketServer
         {
             try
             {
-                handler.handle( message, gameEventQueue, socketAddressToUidMap.get( conn.getRemoteSocketAddress() ) );
+                handler.handle( message, socketAddressToUidMap.get( conn.getRemoteSocketAddress() ) );
             }
             catch( ClientVisibleException e )
             {

@@ -19,6 +19,7 @@ class Game
 
     static init( width, height )
     {
+        Game.colliderManager = new ColliderManager();
         Game.players = {};
         Game.nonPlayerEntities = [];
         Game.gameStartTime = 0;
@@ -43,11 +44,13 @@ class Game
         Game.directionalLight.position.z = 2 * Game.zoomFactor;
         Game.ambientLight = new THREE.AmbientLight( 0x404040, 0.6 );
 
+        Game.hud = new THREE.Group();
         Game.scene = new THREE.Scene();
         Game.scene.add( Game.raycastPlane );
         Game.scene.add( Game.gameBoard );
         Game.scene.add( Game.directionalLight );
         Game.scene.add( Game.ambientLight );
+        Game.scene.add( Game.hud );
     }
 
     static addPlayer( player )
@@ -64,8 +67,8 @@ class Game
 
     static addEntity( entity )
     {
-        Game.nonPlayerEntities.push(entity);
-        Game.scene.add(entity);
+        Game.nonPlayerEntities.push( entity );
+        Game.scene.add( entity );
     }
 
     static start( startTime )
@@ -75,7 +78,7 @@ class Game
             console.error( "Cannot start game that has already been started" );
             return;
         }
-        if( startTime === undefined)
+        if( startTime === undefined )
             startTime = Game.getRealTime();
         Game.gameStartTime = startTime;
         Game.running = true;
@@ -106,15 +109,16 @@ class Game
 
     static updateGraphics()
     {
+        Game.colliderManager.checkForCollisions();
         // Game.gameBoard.rotation.z += 0.01;
         Game.nonPlayerEntities.forEach( function( entity, index )
         {
-           if(!entity.update())
-           {
-               Game.scene.remove( entity );
-               Game.nonPlayerEntities.splice(index, 1 );
-           }
-        });
+            if( !entity.update() )
+            {
+                Game.scene.remove( entity );
+                Game.nonPlayerEntities.splice( index, 1 );
+            }
+        } );
         Object.keys( Game.players ).forEach( function( uid )
         {
             Game.players[ uid ].updateGraphics();
@@ -124,6 +128,8 @@ class Game
         Game.renderer.render( Game.scene, Game.camera );
         if( Game.running )
             requestAnimationFrame( Game.updateGraphics );
+
+        UI.updateUI();
     }
 
     static getTime()
@@ -140,8 +146,15 @@ class Game
 
     static convertGameToTileCoords( coords )
     {
-        let x = Math.floor( coords.x + Game.gameBoard.width / 2);
-        let y = Math.floor( coords.y + Game.gameBoard.height / 2);
-        return {x:x, y:y}
+        let x = Math.floor( coords.x + Game.gameBoard.width / 2 );
+        let y = Math.floor( coords.y + Game.gameBoard.height / 2 );
+        return { x: x, y: y }
+    }
+
+    static convertTileToGameCoords( coords )
+    {
+        let x = coords.x + 0.5 - Game.gameBoard.width / 2;
+        let y = coords.y + 0.5 - Game.gameBoard.height / 2;
+        return { x: x, y: y }
     }
 }

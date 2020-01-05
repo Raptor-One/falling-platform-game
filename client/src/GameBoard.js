@@ -35,6 +35,7 @@ class GameBoard extends THREE.Group
             }
             this.platform.push( column );
         }
+        this.position.z = -0.1;
     }
 
     updateGraphics()

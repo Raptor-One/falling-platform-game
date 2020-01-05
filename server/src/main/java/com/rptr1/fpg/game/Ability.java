@@ -38,6 +38,14 @@ public enum Ability
                 long timeTillResult = (long)( distance / (0.01) + 100);
                 game.updateBoard( tileCoords, new Tile( Tile.State.DISINTEGRATING, params.usedTime + timeTillResult) );
             }),
+    THROW_WIND("throwWindAbility", 500,
+            ( params, game, player ) -> {
+//                if( game.getTime() - params.getUsedTime() < 500) return false;
+                return true;
+            },
+            ( params, game, player ) -> {
+                //todo store that effect entity is in game somehow with collider
+            }),
 
     ;
 

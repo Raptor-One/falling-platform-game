@@ -1,3 +1,4 @@
+
 class PlayerController
 {
     static mouse = new THREE.Vector2();
@@ -38,6 +39,10 @@ class PlayerController
         this.controls = controls;
         this.setControls( controls );
 
+
+        player.hud.add(createDottedCircle(3));
+        player.hud.add(createDottedCircle(6));
+
         PlayerController.raycaster = new THREE.Raycaster();
         PlayerController.mouse = new THREE.Vector2();
 
@@ -52,8 +57,12 @@ class PlayerController
             nthis.mouseClickListener( e, nthis );
         }, false );
 
-        window.addEventListener( 'keyup', this.keyUpListener, false );
-        window.addEventListener( 'keydown', this.keyDownListener, false );
+        window.addEventListener( 'keyup', function ( e ) {
+            nthis.keyUpListener(e, nthis);
+        }, false );
+        window.addEventListener( 'keydown', function (e) {
+            nthis.keyDownListener( e, nthis);
+        }, false );
     }
 
     setControls( controls )
@@ -74,8 +83,22 @@ class PlayerController
         let lastPosTime = Game.getTime();
         lastPos.x = nthis.player.position.x;
         lastPos.y = nthis.player.position.y;
+        //
+        // let deltaX = point.x - lastPos.x;
+        // let deltaY = point.y - lastPos.y;
+        //
+        // let angle = de
+        //
+        // let colPoint1 = getLOSBlockingPoint( lastPos, point, Game.gameBoard.platform, function( state )
+        // {
+        //     return state !== 1 && state !== 2
+        // } );
+        // let colPoint2 = getLOSBlockingPoint( lastPos, point, Game.gameBoard.platform, function( state )
+        // {
+        //     return state !== 1 && state !== 2
+        // } );
 
-        nthis.gameManager.setNewPlayerTarget(lastPos, lastPosTime, point, nthis.gameManager);
+        nthis.gameManager.updateClientPlayerPos(lastPos, lastPosTime, point, nthis.gameManager);
 
         nthis.player.lastX = lastPos.x;
         nthis.player.lastY = lastPos.y;
@@ -107,18 +130,22 @@ class PlayerController
         }
     }
 
-    keyUpListener( e )
+    keyUpListener( e, nthis = this )
     {
+        nthis.checkGameStarted();
         console.log( e );
     }
 
-    keyDownListener( e )
+    keyDownListener( e, nthis = this )
     {
+        nthis.checkGameStarted();
         console.log( e );
     }
 
     mouseClickListener( e, nthis = this )
     {
+        nthis.checkGameStarted();
+
         let control;
         switch( e.which )
         {
@@ -134,6 +161,14 @@ class PlayerController
         console.log( e );
     }
 
+    checkGameStarted()
+    {
+        if(Game.getTime() < 0)
+        {
+            throw "Unable to use ability: game has not started yet";
+        }
+    }
+
 }
 
 window.addEventListener( 'mousemove', PlayerController.mouseUpdateListener, false );
@@ -142,3 +177,15 @@ window.addEventListener( 'contextmenu', function( e )
     e.preventDefault()
 
 }, false );
+
+function createDottedCircle( radius )
+{
+    let dashMaterial = new THREE.LineDashedMaterial( { color: 0xeeeeee, dashSize: 0.2, gapSize: 0.1  } ),
+        circGeom = new THREE.CircleGeometry( radius, 100 );
+
+    circGeom.vertices.shift();
+
+    let circle = new THREE.Line( circGeom, dashMaterial);
+    circle.computeLineDistances();
+    return circle;
+}

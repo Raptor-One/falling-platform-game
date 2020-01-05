@@ -14,7 +14,6 @@ class Entity extends THREE.Group
     {
         throw "createEntityMesh not implemented exception";
     }
-
     /**
      * @return boolean: false when lifecycle has ended
      */
@@ -34,7 +33,7 @@ class FlashExplosion extends Entity
 
     constructor( x, y, radius, createdTime )
     {
-        super( x, y, createdTime, {radius: radius} );
+        super( x, y, createdTime, { radius: radius } );
         this.phase = 0;
         this.mesh.scale.set( FlashExplosion.initialScale, FlashExplosion.initialScale, FlashExplosion.initialScale );
     }
@@ -99,7 +98,7 @@ class Grenade extends Entity
         this.targetY = targetY;
         this.deltaX = this.targetX - this.originX;
         this.deltaY = this.targetY - this.originY;
-        this.totalDistance = Math.sqrt( Math.pow( this.deltaX, 2 ) + Math.pow( this.deltaY, 2 ) );
+        this.totalDistance = calcDistance(this.deltaX, this.deltaY);
     }
 
     createEntityMesh()
@@ -150,4 +149,117 @@ class Grenade extends Entity
         return 0.1 * ( -Math.pow( distance, 2 ) + this.totalDistance * distance );
     }
 
+}
+
+class Wind extends Entity
+{
+    static moveSpeed = 0.01;
+    static radius = 0.3;
+    static length = 0.1;
+    static startFadeOut = 0.7; //ms
+    static initialColor = new THREE.Color( 0.3, 0.2, 0.2 );
+    static landedColor = new THREE.Color( 0.7, 0.3, 0.3 );
+
+    constructor( originX, originY, targetX, targetY, createdTime, casterUid )
+    {
+        super( originX, originY, createdTime );
+        this.collider = new Collider(this, rectangleCollider(Wind.radius*2, Wind.length));
+
+        this.casterUid = casterUid;
+        this.phase = 0;
+        this.originX = originX;
+        this.originY = originY;
+        this.targetX = targetX;
+        this.targetY = targetY;
+        this.deltaX = this.targetX - this.originX;
+        this.deltaY = this.targetY - this.originY;
+        this.totalDistance = calcDistance(this.deltaX, this.deltaY);
+        this.totalTime = this.totalDistance / Wind.moveSpeed;
+        let decrease = 1 - ( Wind.length * 0.7 ) / this.totalDistance;
+        this.deltaX *= decrease;
+        this.deltaY *= decrease;
+        this.totalDistance *= decrease;
+        this.position.z = Wind.radius;
+        this.rotation.z = Math.atan( this.deltaY / this.deltaX ) + Math.PI / 2;
+    }
+
+    createEntityMesh()
+    {
+        let entity = new THREE.Group();
+        let particleCount = 300;
+        let particles = new THREE.Geometry();
+        let pMaterial = new THREE.PointsMaterial( {
+            color: 0xFFFFFF,
+            transparent: true,
+            size: 0.01
+        } );
+
+        for( let p = 0; p < particleCount; p++ )
+        {
+            let r = (Math.random() -0.5 ) * Wind.radius *2;
+            // let r = Math.random() * Wind.radius / 2 - Wind.radius;
+            let l = (Math.random() - 0.5 ) * Wind.length;
+            let a = Math.random() * Math.PI * 2;
+            let particle = new THREE.Vector3( r * Math.cos( a ), l, r * Math.sin( a ) );
+            particles.vertices.push( particle );
+        }
+
+        let particleSystem = new THREE.Points(
+            particles,
+            pMaterial );
+        entity.add( particleSystem );
+        return entity;
+    }
+
+    update()
+    {
+        if( Game.getTime() < this.createdTime ) return true;
+        if( this.phase === 0 || this.phase === 1 )
+        {
+            let progress = ( Game.getTime() - this.createdTime ) * Wind.moveSpeed;
+            let progressFactor = Math.min( progress / this.totalDistance, 1 );
+            this.position.x = this.originX + this.deltaX * progressFactor;
+            this.position.y = this.originY + this.deltaY * progressFactor;
+            this.mesh.children[0].rotation.y += 0.3;
+            if( this.phase === 0 && progressFactor > Wind.startFadeOut )
+                this.phase = 1;
+        }
+        if( this.phase === 1 )
+        {
+            let progressFactor = Math.min( 1, ( Game.getTime() -(  this.createdTime + this.totalTime * Wind.startFadeOut )) / ( this.totalTime * ( 1 - Wind.startFadeOut ) ) );
+            this.mesh.children[ 0 ].material.opacity = ( 1 - progressFactor );
+            if( progressFactor === 1 )
+                this.phase = 2;
+        }
+
+        if (this.phase === 2 )
+        {
+            this.collider.onDelete();
+        }
+
+        return this.phase !== 2;
+    }
+
+    onCollision( entity, nthis = this )
+    {
+        if(nthis.casterUid !== gameManager.uid)
+            return;
+
+        if( entity instanceof Player && entity.uid !== nthis.casterUid)
+        {
+            let distance = 1.2;
+            let duration = 200;
+            let direction = Math.atan(nthis.deltaY/nthis.deltaX);
+            if( nthis.deltaX < 0) direction += Math.PI;
+            let origin = {x: entity.position.x, y:entity.position.y};
+            let target = {x: origin.x + distance * Math.cos(direction), y: origin.y + distance * Math.sin(direction)};
+            let params = {
+                origin: origin,
+                target: target,
+                duration: duration,
+                startTime: Game.getTime()
+            };
+            gameManager.triggerEffect( "pushEffect", entity.uid, params, gameManager );
+        }
+    }
 }

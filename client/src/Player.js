@@ -2,8 +2,10 @@ const defaultPlayerColor = new THREE.Color( 0.8, 0.8, 0.8 );
 const moveSpeedFactor = 0.001;
 const acceptableDelta = 0.001;
 
-class Player extends THREE.Group
+class Player extends Entity
 {
+    effects = [];
+
     abilityParams = {
         playerUid: this.uid,
         origin: { x: undefined, y: undefined },
@@ -11,14 +13,12 @@ class Player extends THREE.Group
         usedTime: 0,
     };
 
-    abilityUsedTimes = [0,0,0,0];
+    abilityUsedTimes = [ 0, 0, 0, 0 ];
 
     constructor( uid, x, y, moveSpeed, abilities )
     {
-        super();
+        super( x, y, 0 );
         this.uid = uid;
-        this.position.x = x;
-        this.position.y = y;
         this.lastX = x;
         this.lastY = y;
         this.lastPosTime = 0;
@@ -27,13 +27,13 @@ class Player extends THREE.Group
         this.moveSpeed = moveSpeed * moveSpeedFactor;
         this.abilities = abilities;
 
-        this.mesh = this.createPlayerMesh();
-        this.position.x = x;
-        this.position.y = y;
-        super.add( this.mesh );
+        this.hud = new THREE.Group();
+        super.add( this.hud );
+
+        this.collider = new Collider( this, circleCollider( 0.4 ) );
     }
 
-    createPlayerMesh()
+    createEntityMesh()
     {
         let player = new THREE.Group();
 
@@ -75,11 +75,21 @@ class Player extends THREE.Group
 
     updateGraphics()
     {
+        if( this.effects.length > 0 )
+        {
+            if(this.effects[0].params.startTime <= Game.getTime())
+            {
+                if( this.effects[ 0 ].effect.apply( this, this.effects[0].params) === false )
+                    this.effects.splice( 0, 1 );
+                return;
+            }
+        }
+
         if( this.position.x === this.targetX && this.position.y === this.targetY )
             return;
         let deltaX = this.targetX - this.lastX;
         let deltaY = this.targetY - this.lastY;
-        let distance = Math.sqrt( Math.pow( deltaX, 2 ) + Math.pow( deltaY, 2 ) );
+        let distance = calcDistance(deltaX, deltaY);
         let progress = ( Game.getTime() - this.lastPosTime ) * this.moveSpeed;
         let progressFactor = Math.min( progress / distance, 1 );
         this.position.x = this.lastX + deltaX * progressFactor;

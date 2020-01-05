@@ -1,13 +1,17 @@
 package com.rptr1.fpg.msgs;
 
+import com.rptr1.fpg.server.main.GameEventDispatcher;
+
 import java.util.concurrent.BlockingQueue;
 
 public class TimeSyncHandler extends MessageHandler<TimeSyncRequest>
 {
 
     @Override
-    public void handle( TimeSyncRequest msg, BlockingQueue<GameEvent> gameEventQueue, String playerUid )
+    public void handle( TimeSyncRequest msg, String playerUid )
     {
-        gameEventQueue.add( new GameEvent( playerUid, new TimeSyncResponse( msg.getTimestamp(), System.currentTimeMillis() ) ) );
+
+        System.out.println( "Connection has estimated timeOffset of " + (System.currentTimeMillis() - msg.getTimestamp() ));
+        GameEventDispatcher.dispatch( new GameEvent( playerUid, new TimeSyncResponse( msg.getTimestamp(), System.currentTimeMillis() ) ) );
     }
 }

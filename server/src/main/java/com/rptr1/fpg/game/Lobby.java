@@ -17,9 +17,9 @@ public class Lobby
         this.id = id;
     }
 
-    void createNewGame( BlockingQueue<GameEvent> gameEventQueue )
+    void createNewGame( )
     {
-        game = new Game( id, playerUids, this::gameEnded, gameEventQueue );
+        game = new Game( id, playerUids, this::gameEnded );
     }
 
     void addPlayer( String playerUid )

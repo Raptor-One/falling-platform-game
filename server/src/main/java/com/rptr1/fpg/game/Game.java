@@ -1,6 +1,7 @@
 package com.rptr1.fpg.game;
 
 import com.rptr1.fpg.msgs.*;
+import com.rptr1.fpg.server.main.GameEventDispatcher;
 import com.rptr1.fpg.util.Vector2f;
 import com.rptr1.fpg.util.Vector2i;
 
@@ -23,9 +24,8 @@ public class Game
     private boolean running = false;
     private Map<String, Player> playerMap = new HashMap<>();
     private Runnable onGameOver;
-    private BlockingQueue<GameEvent> gameEventQueue;
 
-    public Game( String lobbyId, List<String> playerUids, Runnable onGameOver, BlockingQueue<GameEvent> gameEventQueue )
+    public Game( String lobbyId, List<String> playerUids, Runnable onGameOver )
     {
         this.lobbyId = lobbyId;
         int dimensions = calculateDimensions( playerUids.size() );
@@ -33,7 +33,6 @@ public class Game
         this.height = dimensions;
         this.gameboard = new Tile[ width ][ height ];
         this.onGameOver = onGameOver;
-        this.gameEventQueue = gameEventQueue;
         GameEvent addPlayersGameEvent = new GameEvent();
         double spawnAngle = 0;
         float spawnRadius = dimensions / 2f * 0.8f;
@@ -57,8 +56,8 @@ public class Game
             }
         }
         startTime = System.currentTimeMillis() + 3000;
-        gameEventQueue.add( new GameEvent( playerUids, new CreateGameResponse( this.width, this.height, this.startTime ) ) );
-        gameEventQueue.add( addPlayersGameEvent );
+        GameEventDispatcher.dispatch( new GameEvent( playerUids, new CreateGameResponse( this.width, this.height, this.startTime ) ) );
+        GameEventDispatcher.dispatch( addPlayersGameEvent );
     }
 
     public void updateBoard( Vector2i pos, Tile tile )
@@ -75,7 +74,7 @@ public class Game
     {
         List<String> remainingPlayers = new ArrayList<>( playerMap.keySet() );
         remainingPlayers.remove( uid );
-        gameEventQueue.add( new GameEvent( remainingPlayers , new RemovePlayerResponse( uid ) ) );
+        GameEventDispatcher.dispatch( new GameEvent( remainingPlayers , new RemovePlayerResponse( uid ) ) );
         playerMap.remove( uid );
         if(playerMap.size() == 0)
         {

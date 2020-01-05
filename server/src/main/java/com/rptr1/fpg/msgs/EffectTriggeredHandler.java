@@ -4,14 +4,13 @@ import com.rptr1.fpg.error.ClientVisibleException;
 import com.rptr1.fpg.game.*;
 import com.rptr1.fpg.server.main.GameEventDispatcher;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 
-public class AbilityTriggeredHandler extends MessageHandler<AbilityTriggeredMsg>
+public class EffectTriggeredHandler extends MessageHandler<EffectTriggeredMsg>
 {
     @Override
-    public void handle( AbilityTriggeredMsg msg, String playerUid )
+    public void handle( EffectTriggeredMsg msg, String playerUid )
     {
         Lobby lobby = LobbyManager.getLobbyFromPlayer( playerUid );
         if( lobby == null )
@@ -22,18 +21,14 @@ public class AbilityTriggeredHandler extends MessageHandler<AbilityTriggeredMsg>
         Player player = game.getPlayer( playerUid );
         if( player == null )
             throw new ClientVisibleException( "Player is not in this lobby's game" );
-        Ability ability = Ability.getFromName( msg.getAbilityName() );
-        if( ability == null )
-            throw new ClientVisibleException( "Unknown Ability" );
-
-        if( !ability.verifyCondition( msg.getParams(), game, player ) )
-            throw new ClientVisibleException( "Unable to use ability" );
+        Effect effect = Effect.getFromName( msg.getEffectName() );
+        if( effect == null )
+            throw new ClientVisibleException( "Unknown Effect" );
 
         List<String> players = LobbyManager.getLobbyFromPlayer( playerUid ).getPlayerUids();
         msg.setUid( playerUid );
-
         GameEventDispatcher.dispatch( new GameEvent( players, msg) );
 
-        ability.performAction( msg.getParams(), game, player );
+//        effect.performAction( msg.getParams(), game, player );
     }
 }

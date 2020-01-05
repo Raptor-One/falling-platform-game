@@ -7,22 +7,15 @@ public class GameEvent
 {
     private List<Message> messages = new ArrayList<>();
     private List<String> recipients = new ArrayList<>();
-    private boolean killThread = false;
+
+    public GameEvent( )
+    {
+    }
 
     public GameEvent( List<String> recipients, List<Message> messages )
     {
         this.recipients = recipients;
         this.messages = messages;
-    }
-
-    public GameEvent( boolean killThread )
-    {
-        this.killThread = killThread;
-    }
-
-    public GameEvent( )
-    {
-        this.killThread = killThread;
     }
 
     public GameEvent( List<String> recipients, Message message )
@@ -62,8 +55,4 @@ public class GameEvent
         return recipients;
     }
 
-    public boolean isKillThread()
-    {
-        return killThread;
-    }
 }

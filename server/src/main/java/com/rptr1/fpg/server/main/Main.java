@@ -9,10 +9,10 @@ public class Main
 
     public static void main( String[] args )
     {
-        String host = "localhost";
+        String host = "192.168.1.21";
         int port = 8887;
 
-        WebSocketServer server = new GameServerWebSocket( new InetSocketAddress( host, port ) );
+        WebSocketServer server = new GameServerWebSocket( new InetSocketAddress( port ) );
 
         server.run();
     }

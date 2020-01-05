@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <title>Falling Platform</title>
     <script src="https://threejs.org/build/three.js"></script>
+    <script defer src="src/utils.js"></script>
+    <script defer src="src/effects.js"></script>
+    <script defer src="src/UI.js"></script>
+    <script defer src="src/Collider.js"></script>
+    <script defer src="src/Entity.js"></script>
     <script defer src="src/Player.js"></script>
     <script defer src="src/abilities.js"></script>
-    <script defer src="src/Entity.js"></script>
     <script defer src="src/GameBoard.js"></script>
     <script defer src="src/Game.js"></script>
     <script defer src="src/PlayerController.js"></script>
@@ -16,9 +20,26 @@
         body {
             margin: 0;
             overflow: hidden;
+            font-family: sans-serif;
+            text-align: center;
+        }
+        #ui-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        #title {
+            margin-top: 20%;
+            display: inline-block;
+            font-size: 24pt;
+            font-weight: bold;
+            color: #ddd;
         }
     </style>
 </head>
 <body>
+<div id="ui-container">
+<div id="title"></div>
+</div>
 </body>
 </html>

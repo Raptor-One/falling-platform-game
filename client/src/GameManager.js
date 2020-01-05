@@ -1,5 +1,5 @@
-const url = "ws://localhost";
-const port = "8887";
+const url = "ws://69.172.171.38";
+const port = "5002";
 const defaultControls = { leftClick: 'usePrimaryAbility', rightClick: 'setPlayerTarget' };
 
 class GameManager
@@ -13,6 +13,7 @@ class GameManager
         setUidResponse: this.setUidMsgHandler,
         updatePlayerMovementMsg: this.playerPosChangeHandler,
         abilityTriggeredMsg: this.playerUsedAbilityHandler,
+        effectTriggeredMsg: this.effectTriggeredHandler,
     };
 
     realTimeSyncOffset = 0;
@@ -91,7 +92,12 @@ class GameManager
         nthis.sendMsg( { msgType: "abilityTriggeredMsg", abilityName: abilityName, params: params } );
     }
 
-    setNewPlayerTarget( lastPos, lastPosTime, targetPos, nthis = this )
+    triggerEffect( effectName, targetUid, params, nthis = this )
+    {
+        nthis.sendMsg( { msgType: "effectTriggeredMsg", effectName: effectName, targetUid: targetUid, params: params } );
+    }
+
+    updateClientPlayerPos( lastPos, lastPosTime, targetPos, nthis = this )
     {
         nthis.sendMsg( { msgType: "updatePlayerMovementMsg", lastPosition: lastPos, lastPositionTime: lastPosTime, targetPosition: targetPos } );
     }
@@ -176,7 +182,32 @@ class GameManager
             console.error( "Player used ability which does not exist to this client" );
             return;
         }
-        abilities[ msg.abilityName ].action( msg.params );
+        msg.params.playerUid = msg.uid;
+        setTimeout( function(  )
+        {
+            abilities[ msg.abilityName ].action( msg.params );
+        }, msg.params.usedTime - Game.getTime());
+        console.log("Total Latency: " + (Game.getTime() - msg.params.usedTime))
+
+    }
+
+    effectTriggeredHandler( msg, nthis = this )
+    {
+        nthis.validateGameExistence();
+        let player = nthis.validatePlayerExistence( msg.targetUid, nthis );
+
+        if( effects[ msg.effectName ] === undefined )
+        {
+            console.error( "Effect has been triggered which does not exist to this client" );
+            return;
+        }
+        msg.params.targetUid = msg.targetUid;
+        setTimeout( function( )
+        {
+            player.effects.push( { effect: effects[ msg.effectName ], params: msg.params});
+        }, msg.params.startTime - Game.getTime());
+        console.log("Total Latency: " + (Game.getTime() - msg.params.startTime))
+
     }
 
     validateGameExistence( nthis = this )
