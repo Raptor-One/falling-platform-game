@@ -87,6 +87,11 @@ class GameManager
         nthis.sendMsg( { msgType: "timeSyncRequest", timestamp: Date.now() } );
     }
 
+    requestLobbyJoin( nthis = this )
+    {
+        nthis.sendMsg( { msgType: "lobbyJoinRequest" } );
+    }
+
     triggerAbility( abilityName, params, nthis = this )
     {
         nthis.sendMsg( { msgType: "abilityTriggeredMsg", abilityName: abilityName, params: params } );
@@ -121,7 +126,7 @@ class GameManager
 
     createGameHandler( msg, nthis = this )
     {
-        //todo cleanup old game if exists
+        Game.reset();
         Game.init( msg.width, msg.height );
 
         // let player = new Player("Joe", 0, 0, 5, [throwGrenadeAbility]);

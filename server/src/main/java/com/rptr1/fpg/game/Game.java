@@ -78,7 +78,7 @@ public class Game
         remainingPlayers.remove( uid );
         GameEventDispatcher.dispatch( new GameEvent( remainingPlayers , new RemovePlayerResponse( uid ) ) );
         playerMap.remove( uid );
-        if(playerMap.size() == 0)
+        if(playerMap.size() <= 1)
         {
             // todo end / restart game logic
             onGameOver.run();

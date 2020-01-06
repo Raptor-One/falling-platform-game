@@ -5,13 +5,18 @@ import java.util.List;
 
 public class Lobby
 {
+    private static final int START_PLAYER_COUNT = 2;
     private String id;
+    private boolean isPublic;
+    private boolean autoManaged;
     private List<String> playerUids = new ArrayList<>();
     private Game game = null;
 
-    public Lobby( String id )
+    public Lobby( String id, boolean isPublic, boolean autoManaged )
     {
         this.id = id;
+        this.isPublic = isPublic;
+        this.autoManaged = autoManaged;
     }
 
     void createNewGame( )
@@ -22,6 +27,10 @@ public class Lobby
     void addPlayer( String playerUid )
     {
         playerUids.add( playerUid );
+        if( game == null && autoManaged && playerUids.size() >= START_PLAYER_COUNT )
+        {
+            createNewGame();
+        }
     }
 
     void gameEnded()
@@ -51,5 +60,10 @@ public class Lobby
     public List<String> getPlayerUids()
     {
         return playerUids;
+    }
+
+    public String getId()
+    {
+        return id;
     }
 }

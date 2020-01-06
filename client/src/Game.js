@@ -17,9 +17,8 @@ class Game
     static running = false;
     static realTimeSyncOffset = 0;
 
-    static init( width, height )
+    static reset()
     {
-        Game.colliderManager = new ColliderManager();
         Game.players = {};
         Game.nonPlayerEntities = [];
         Game.gameStartTime = 0;
@@ -27,6 +26,11 @@ class Game
         Game.gameStopTime = 0;
         Game.running = false;
         Game.realTimeSyncOffset = 0;
+    }
+
+    static init( width, height )
+    {
+        Game.colliderManager = new ColliderManager();
 
         Game.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
         Game.zoomFactor = width / 8;
@@ -36,6 +40,13 @@ class Game
 
         Game.renderer = new THREE.WebGLRenderer( { antialias: true } );
         Game.renderer.setSize( window.innerWidth, window.innerHeight );
+
+        let oldCanvases = document.getElementsByTagName('canvas');
+        for( let i = 0; i < oldCanvases.length; i++ )
+        {
+            document.body.removeChild(oldCanvases[i]);
+        }
+
         document.body.appendChild( Game.renderer.domElement );
 
         Game.raycastPlane = new THREE.Mesh( new THREE.PlaneGeometry( width, height, 1, 1 ), new THREE.MeshBasicMaterial( { visible: false } ) );

@@ -36,7 +36,7 @@ class PlayerController
     {
         this.player = player;
         this.gameManager = gameManager;
-        this.controls = controls;
+        this.controls = {};
         this.setControls( controls );
 
 

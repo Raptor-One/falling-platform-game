@@ -20,13 +20,13 @@ public class GameServerWebSocket extends WebSocketServer
 {
     public static final Map<InetSocketAddress, String> socketAddressToUidMap = new ConcurrentHashMap<>(); //connection to player id
     public static final Map<String, WebSocket> uidToSocketAddressMap = new ConcurrentHashMap<>(); //player id to ws connection
-    public static final Map<String, String> activePlayers = new ConcurrentHashMap<>(); // player id to game id
-    public static final Map<String, Game> activeGames = new ConcurrentHashMap<>(); // game id to game
+
     private final Gson gson = CustomGson.getGson();
 
     private final Map<String, MessageHandler<?>> messageHandlerMap = new HashMap<String, MessageHandler<?>>()
     {{
         put( "timeSyncRequest", new TimeSyncHandler() );
+        put( "lobbyJoinRequest", new LobbyJoinHandler() );
         put( "abilityTriggeredMsg", new AbilityTriggeredHandler() );
         put( "effectTriggeredMsg", new EffectTriggeredHandler() );
         put( "updatePlayerMovementMsg", new UpdatePlayerMovementHandler() );
@@ -48,11 +48,6 @@ public class GameServerWebSocket extends WebSocketServer
         uidToSocketAddressMap.put( playerUid, conn );
         GameEventDispatcher.dispatch( new GameEvent( playerUid, new SetUidResponse( playerUid ) ) );
 
-        String lobbyId = LobbyManager.addPlayer( playerUid );
-        if(LobbyManager.getLobby( lobbyId ).getGame() == null && LobbyManager.getLobby( lobbyId ).getNumberOfPlayers() >= 1 )
-        {
-            LobbyManager.createNewGame( lobbyId );
-        }
     }
 
     @Override
