@@ -5,6 +5,7 @@ const defaultControls = { leftClick: 'usePrimaryAbility', rightClick: 'setPlayer
 class GameManager
 {
     messageHandlers = {
+        errorMsg: this.clientErrorHandler,
         timeSyncResponse: this.setTimeHandler,
         boardStateChangeResponse: this.boardStateChangeHandler,
         createPlayerResponse: this.createPlayerHandler,
@@ -14,6 +15,7 @@ class GameManager
         updatePlayerMovementMsg: this.playerPosChangeHandler,
         abilityTriggeredMsg: this.playerUsedAbilityHandler,
         effectTriggeredMsg: this.effectTriggeredHandler,
+        lobbyInfoResponse: this.lobbyInfoHandler,
     };
 
     realTimeSyncOffset = 0;
@@ -233,5 +235,14 @@ class GameManager
         return player
     }
 
+    lobbyInfoHandler( msg, nthis = this)
+    {
+        console.log( `In lobby of size ${msg.playerNames.length} -  ${msg.statusMessage}` );
+    }
+
+    clientErrorHandler( msg, nthis = this)
+    {
+        console.error( "From Server: " + msg.error );
+    }
 
 }

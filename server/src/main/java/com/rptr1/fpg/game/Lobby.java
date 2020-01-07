@@ -1,5 +1,9 @@
 package com.rptr1.fpg.game;
 
+import com.rptr1.fpg.msgs.GameEvent;
+import com.rptr1.fpg.msgs.LobbyInfoResponse;
+import com.rptr1.fpg.server.main.GameEventDispatcher;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +13,7 @@ public class Lobby
     private String id;
     private boolean isPublic;
     private boolean autoManaged;
+    private String statusMessage;
     private List<String> playerUids = new ArrayList<>();
     private Game game = null;
 
@@ -17,6 +22,7 @@ public class Lobby
         this.id = id;
         this.isPublic = isPublic;
         this.autoManaged = autoManaged;
+        this.statusMessage = autoManaged ? "Waiting for players..." : "Waiting for host...";
     }
 
     void createNewGame( )
@@ -31,6 +37,8 @@ public class Lobby
         {
             createNewGame();
         }
+        System.out.printf("Player Joined: lobby [%s] has %d players\n", id, playerUids.size());
+        sendUpdate();
     }
 
     void gameEnded()
@@ -45,6 +53,13 @@ public class Lobby
             game.removeDisconnectedPlayer( playerUid );
         }
         playerUids.remove( playerUid );
+        System.out.printf("Player Left: lobby [%s] has %d players\n", id, playerUids.size());
+        sendUpdate();
+    }
+
+    void sendUpdate()
+    {
+        GameEventDispatcher.dispatch( new GameEvent( playerUids, new LobbyInfoResponse( id, (String[])playerUids.toArray(), statusMessage ) ) );
     }
 
     public Game getGame()
@@ -65,5 +80,15 @@ public class Lobby
     public String getId()
     {
         return id;
+    }
+
+    public boolean isPublic()
+    {
+        return isPublic;
+    }
+
+    public boolean isAutoManaged()
+    {
+        return autoManaged;
     }
 }

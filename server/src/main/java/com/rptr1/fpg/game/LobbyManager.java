@@ -25,6 +25,7 @@ public class LobbyManager
     public static void removeLobby( String lobbyId )
     {
         lobbyMap.remove( lobbyId );
+        System.out.printf("Lobby [%s] removed\n", lobbyId);
     }
 
     public static void addPlayerToLobby( String playerUid, String lobbyId )
@@ -35,11 +36,18 @@ public class LobbyManager
 
     public static String addPlayer( String uid )
     {
-        String lobbyId;
-        if( lobbyMap.size() == 0 )
+        String lobbyId = null;
+        for( String key : lobbyMap.keySet() )
+        {
+            if(lobbyMap.get( key ).isPublic() && lobbyMap.get( key ).isAutoManaged());
+            {
+                lobbyId = key;
+                break;
+            }
+        }
+        if( lobbyId == null )
             lobbyId = createLobby();
-        else
-            lobbyId = lobbyMap.keySet().iterator().next();
+
         addPlayerToLobby( uid, lobbyId );
         return lobbyId;
     }

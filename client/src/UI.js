@@ -26,7 +26,7 @@ class UI
 
     static updateUI()
     {
-        if( UI.preGameUIPhase === 4)
+        if( UI.Game.getTime() > 500)
             return;
         if(Game.getTime() > -3000 && UI.preGameUIPhase === 0)
         {

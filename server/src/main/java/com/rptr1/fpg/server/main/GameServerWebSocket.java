@@ -73,7 +73,7 @@ public class GameServerWebSocket extends WebSocketServer
             }
             catch( ClientVisibleException e )
             {
-                e.printStackTrace();
+                System.out.println( "Client Visible Error: " + e.getMessage() );
                 conn.send( new ErrorMsg( e.getMessage() ).toJSON() );
             }
         }
