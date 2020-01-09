@@ -1,5 +1,6 @@
 package com.rptr1.fpg.game;
 
+import com.rptr1.fpg.error.ClientVisibleException;
 import com.rptr1.fpg.msgs.GameEvent;
 import com.rptr1.fpg.msgs.LobbyInfoResponse;
 import com.rptr1.fpg.server.main.GameEventDispatcher;
@@ -32,6 +33,8 @@ public class Lobby
 
     void addPlayer( String playerUid )
     {
+        if(playerUids.contains( playerUid ))
+            throw new ClientVisibleException( "You are already in this lobby" );
         playerUids.add( playerUid );
         if( game == null && autoManaged && playerUids.size() >= START_PLAYER_COUNT )
         {
@@ -59,7 +62,9 @@ public class Lobby
 
     void sendUpdate()
     {
-        GameEventDispatcher.dispatch( new GameEvent( playerUids, new LobbyInfoResponse( id, (String[])playerUids.toArray(), statusMessage ) ) );
+        String[] players = new String[playerUids.size()];
+        players = playerUids.toArray( players );
+        GameEventDispatcher.dispatch( new GameEvent( playerUids, new LobbyInfoResponse( id, players, statusMessage ) ) );
     }
 
     public Game getGame()

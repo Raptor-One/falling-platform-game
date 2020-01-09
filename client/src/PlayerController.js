@@ -47,22 +47,34 @@ class PlayerController
         PlayerController.mouse = new THREE.Vector2();
 
         let nthis = this;
-        window.addEventListener( 'click', function( e )
+        this.clickHandler = function( e )
         {
             nthis.mouseClickListener( e, nthis );
-        }, false );
-        window.addEventListener( 'contextmenu', function( e )
+        };
+        this.contextMenuHandler = function( e )
         {
             e.preventDefault();
             nthis.mouseClickListener( e, nthis );
-        }, false );
+        };
+        this.keyUpHandler = function ( e ) {
 
-        window.addEventListener( 'keyup', function ( e ) {
             nthis.keyUpListener(e, nthis);
-        }, false );
-        window.addEventListener( 'keydown', function (e) {
+        };
+        this.keyDownHandler = function ( e) {
             nthis.keyDownListener( e, nthis);
-        }, false );
+        };
+        window.addEventListener( 'click', this.clickHandler, false );
+        window.addEventListener( 'contextmenu', this.contextMenuHandler, false );
+        window.addEventListener( 'keyup', this.keyUpHandler, false );
+        window.addEventListener( 'keydown', this.keyDownHandler, false );
+    }
+
+    removeListeners()
+    {
+        window.removeEventListener( 'click', this.clickHandler, false );
+        window.removeEventListener( 'contextmenu', this.contextMenuHandler, false );
+        window.removeEventListener( 'keyup', this.keyUpHandler, false );
+        window.removeEventListener( 'keydown', this.keyDownHandler, false );
     }
 
     setControls( controls )

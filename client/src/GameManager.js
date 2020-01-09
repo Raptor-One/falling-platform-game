@@ -145,7 +145,10 @@ class GameManager
         if( nthis.uid !== undefined && nthis.uid === msg.uid )
         {
             if( nthis.controller !== undefined )
+            {
+                nthis.controller.removeListeners();
                 delete nthis.controller;
+            }
             nthis.controller = new PlayerController( player, nthis, defaultControls );
         }
     }

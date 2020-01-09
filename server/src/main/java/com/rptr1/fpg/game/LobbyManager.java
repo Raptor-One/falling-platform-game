@@ -1,6 +1,7 @@
 package com.rptr1.fpg.game;
 
-import java.util.HashMap;
+import com.rptr1.fpg.error.ClientVisibleException;
+
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,6 +31,8 @@ public class LobbyManager
 
     public static void addPlayerToLobby( String playerUid, String lobbyId )
     {
+        if(playerToLobbyMap.containsKey( playerUid ))
+            throw new ClientVisibleException( "Cannot join another lobby when still in a lobby" );
         lobbyMap.get( lobbyId ).addPlayer( playerUid );
         playerToLobbyMap.put( playerUid, lobbyId );
     }
